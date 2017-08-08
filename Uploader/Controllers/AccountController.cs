@@ -147,11 +147,12 @@ namespace Uploader.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Register(RegisterViewModel model)
+
+        public async Task<ActionResult> Register(User user)
         {
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = model.Username, Email = model.Username};
+                /*var user = new ApplicationUser { UserName = model.Username, Email = model.Username};
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
@@ -165,11 +166,28 @@ namespace Uploader.Controllers
 
                     return RedirectToAction("Index", "Home");
                 }
-                AddErrors(result);
-            }
+                AddErrors(result);*/
 
+                UploaderDatabaseEntities1 db = new UploaderDatabaseEntities1();
+                db.Users.Add(user);
+                db.SaveChanges();
+
+                string message = "";
+                switch (user.UserId)
+                {
+                    case -1:
+                        message = "Username already taken. Please use another username.";
+                        break;
+                    default:
+                        message = "Registration successful";
+                        break;
+                }
+                ViewBag.Message = message;
+                return RedirectToAction("Register");
+            }
+            
             // If we got this far, something failed, redisplay form
-            return View(model);
+            return View(user);
         }
 
         //
